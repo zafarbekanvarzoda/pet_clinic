@@ -9,27 +9,23 @@ class User(Base):
     name = Column(String)
     phone = Column(String)
 
+    owner = relationship("Owner", back_populates="user", uselist=False)
+
+
 class Owner(Base):
     __tablename__ = "owners"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
 
+    user = relationship("User", back_populates="owner")
     pets = relationship("Pet", back_populates="owner")
 
 
 class Pet(Base):
     __tablename__ = "pets"
-
     id = Column(Integer, primary_key=True)
     name = Column(String)
     species = Column(String)
     age = Column(Integer)
     owner_id = Column(Integer, ForeignKey("owners.id"))
-
     owner = relationship("Owner", back_populates="pets")
-
-
-
-
-
-
