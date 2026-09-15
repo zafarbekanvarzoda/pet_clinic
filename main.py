@@ -1,11 +1,15 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query, Response
 from database import engine, SessionLocal, Base
 from sqlalchemy.orm import Session
+from io import BytesIO
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 from service import (
     insert_pet, get_all_pets, get_pet_by_id, modify_pet, remove_pet,
     add_owner, get_owner, add_user, get_user, add_vet, get_vet,
     get_all_vets, modify_vet, remove_vet, get_all_users, modify_user, remove_user,
-    modify_owner, remove_owner, get_all_owners
+    modify_owner, remove_owner, get_all_owners, get_pets_by_species
 )
 
 from schemas import (
@@ -25,6 +29,31 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+
+@app.get("/pets/chart", dependencies=[Depends(verify_api_key)])
+def pets_chart(db: Session = Depends(get_db)):
+    data = get_pets_by_species(db)
+
+    species = [item[0] for item in data]
+    counts = [item[1] for item in data]
+
+    plt.bar(species, counts)
+    plt.xlabel("Species")
+    plt.ylabel("Number of pets")
+    plt.title("Pets by species")
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    image_data = buffer.getvalue()
+
+    plt.close()
+
+    return Response(
+        content=image_data,
+        media_type="image/png"
+    )
 
 
 @app.get("/")
@@ -96,8 +125,8 @@ def create_pet(pet_data: PetCreateDTO, db: Session = Depends(get_db)):
 
 
 @app.get("/pets", response_model=list[PetResponseDTO], dependencies=[Depends(verify_api_key)])
-def list_pets(db: Session = Depends(get_db)):
-    return get_all_pets(db)
+def list_pets(db: Session = Depends(get_db), skip: int = Query(0, ge = 0), limit: int = Query(10, ge = 1, le = 100)):
+    return get_all_pets(db, skip, limit)
 
 
 @app.get("/pets/{pet_id}", response_model=PetResponseDTO, dependencies=[Depends(verify_api_key)])

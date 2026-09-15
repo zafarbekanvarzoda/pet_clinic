@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from models import Owner, Pet, User, Vet
 from schemas import (
     PetCreateDTO, PetUpdateDTO, OwnerCreateDTO, UserCreateDTO, UserUpdateDTO, VetCreateDTO,VetUpdateDTO,
@@ -23,8 +24,18 @@ def insert_pet(pet_data: PetCreateDTO, db: Session):
     return pet
 
 # ================================PET============================================
-def get_all_pets(db: Session):
-    return db.query(Pet).all()
+def get_all_pets(db: Session, skip, limit):
+    return db.query(Pet).offset(skip).limit(limit).all()
+
+def get_pets_by_species(db: Session):
+    return (
+        db.query(
+            Pet.species,
+            func.count(Pet.id)
+        )
+        .group_by(Pet.species)
+        .all()
+    )
 
 
 def get_pet_by_id(db: Session, pet_id: int):

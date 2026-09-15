@@ -6,12 +6,13 @@ class PetCreateDTO(BaseModel):
 
     name: str
     species: str
+    diagnosis: str
     age: int
     owner_id: int
     vet_id: int
 
     def to_pet(self) -> Pet:
-        return Pet(name=self.name, species=self.species, age=self.age, owner_id=self.owner_id, vet_id=self.vet_id)
+        return Pet(name=self.name, species=self.species, diagnosis=self.diagnosis, age=self.age, owner_id=self.owner_id, vet_id=self.vet_id)
 
 
 class PetUpdateDTO(BaseModel):
@@ -19,6 +20,7 @@ class PetUpdateDTO(BaseModel):
 
     name: str
     species: str
+    diagnosis: str
     age: int
     owner_id: int
     vet_id: int
@@ -26,6 +28,7 @@ class PetUpdateDTO(BaseModel):
     def apply_to(self, pet: Pet) -> Pet:
         pet.name = self.name
         pet.species = self.species
+        pet.diagnosis = self.diagnosis
         pet.age = self.age
         pet.owner_id = self.owner_id
         pet.vet_id = self.vet_id
@@ -38,6 +41,7 @@ class PetResponseDTO(BaseModel):
     id: int
     name: str
     species: str
+    diagnosis: str
     age: int
     owner_id: int
     vet_id: int
@@ -74,9 +78,11 @@ class OwnerUpdateDTO(BaseModel):
 class UserCreateDTO(BaseModel):
     name: str
     phone: PhoneNumber
+    address: str
+
 
     def to_user(self) -> User:
-        return User(name=self.name, phone=self.phone)
+        return User(name=self.name, phone=self.phone, address=self.address.replace("\n", ", "))
 
 
 class UserResponseDTO(BaseModel):
@@ -85,14 +91,17 @@ class UserResponseDTO(BaseModel):
     id: int
     name: str
     phone: PhoneNumber
+    address: str
 
 class UserUpdateDTO(BaseModel):
     name: str
     phone: PhoneNumber
+    address: str
 
     def apply_to(self, user: User) -> User:
         user.name = self.name
         user.phone = self.phone
+        user.address = self.address
         return user
 
 

@@ -7,6 +7,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     phone = Column(String)
+    address = Column(String)
 
     owner = relationship("Owner", back_populates="user", uselist=False)
 
@@ -49,6 +50,7 @@ class Pet(Base):
     name = Column(String)
     species = Column(String)
     age = Column(Integer)
+    diagnosis = Column(String)
 
     owner_id = Column(Integer, ForeignKey("owners.id"))
     vet_id = Column(Integer, ForeignKey("vets.id"))
